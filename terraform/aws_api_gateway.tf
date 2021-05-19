@@ -8,7 +8,8 @@ resource "aws_api_gateway_deployment" "this" {
   stage_description = "timestamp = ${timestamp()}"
 
   depends_on = [
-    aws_api_gateway_integration.register_post
+    aws_api_gateway_integration.register_post,
+    aws_api_gateway_integration.auth_get,
   ]
 
   lifecycle {
