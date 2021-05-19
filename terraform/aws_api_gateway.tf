@@ -3,8 +3,8 @@ resource "aws_api_gateway_rest_api" "this" {
 }
 
 resource "aws_api_gateway_deployment" "this" {
-  rest_api_id = aws_api_gateway_rest_api.this.id
-  stage_name = local.pj
+  rest_api_id       = aws_api_gateway_rest_api.this.id
+  stage_name        = local.pj
   stage_description = "timestamp = ${timestamp()}"
 
   depends_on = [
@@ -19,14 +19,14 @@ resource "aws_api_gateway_deployment" "this" {
 
 resource "aws_api_gateway_method_settings" "this" {
   rest_api_id = aws_api_gateway_rest_api.this.id
-  stage_name = aws_api_gateway_deployment.this.stage_name
+  stage_name  = aws_api_gateway_deployment.this.stage_name
   method_path = "*/*"
 
   settings {
     data_trace_enabled = true
-    logging_level = "ERROR"
+    logging_level      = "ERROR"
   }
 
   depends_on = [
-    module.api_gateway_account]
+  module.api_gateway_account]
 }

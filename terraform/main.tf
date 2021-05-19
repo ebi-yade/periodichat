@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
       version = ">= 3.41.0, < 4"
     }
   }
@@ -17,5 +17,5 @@ output "api_base_url" {
 
 module "api_gateway_account" {
   source = "./modules/api_gateway_account"
-  count = var.api_gateway_accounts_already_exists ? 0 : 1
+  count  = var.api_gateway_accounts_already_exists ? 0 : 1
 }

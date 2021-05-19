@@ -1,4 +1,4 @@
 locals {
-  pj = "periodichat"
+  pj                                 = "periodichat"
   lambda_function_integration_method = "POST"
 }

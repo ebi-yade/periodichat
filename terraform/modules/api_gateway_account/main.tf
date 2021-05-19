@@ -3,19 +3,19 @@ resource "aws_api_gateway_account" "this" {
 }
 
 resource "aws_iam_role" "this" {
-  name = "api_gateway_cloudwatch_global"
+  name               = "api_gateway_cloudwatch_global"
   assume_role_policy = data.aws_iam_policy_document.assume.json
 }
 
 data "aws_iam_policy_document" "assume" {
   statement {
     actions = [
-      "sts:AssumeRole"]
+    "sts:AssumeRole"]
 
     principals {
       type = "Service"
       identifiers = [
-        "apigateway.amazonaws.com"]
+      "apigateway.amazonaws.com"]
     }
   }
 }
@@ -41,6 +41,6 @@ data "aws_iam_policy_document" "this" {
       "logs:FilterLogEvents",
     ]
     resources = [
-      "*"]
+    "*"]
   }
 }
