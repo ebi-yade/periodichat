@@ -11,6 +11,11 @@ provider "aws" {}
 
 data "aws_caller_identity" "self" {}
 
-output "account" {
-  value = data.aws_caller_identity.self.account_id
+output "api_base_url" {
+  value = aws_api_gateway_deployment.this.invoke_url
+}
+
+module "api_gateway_account" {
+  source = "./modules/api_gateway_account"
+  count = var.api_gateway_accounts_already_exists ? 0 : 1
 }

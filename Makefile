@@ -1,13 +1,14 @@
-GIT_REV := "$(shell git rev-parse --short HEAD )"
+GIT_REV := "$(shell git rev-parse --short HEAD)"
 GO := go
 GO_BUILD := $(GO) build
 GO_ENV := CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 SUFFIX := .go
 
 TF_DIR := terraform
+AGA_AE := true
 
 .DEFAULT_GOAL := help
-.PHONY: init handlers devdeps clean help deploy
+.PHONY: init handlers devdeps fmt clean help deploy
 
 init:
 	cd $(TF_DIR) && tfenv install && terraform init
@@ -27,7 +28,7 @@ DIST_DIR := _dist
 TARGETS := $(LAMBDA_HANDLERS:%=$(DIST_DIR)/%)
 
 $(DIST_DIR)/%: $(LAMBDA_HANDLER_DIR)/% $(DEPFILES) go.sum
-	$(GO_ENV) $(GO_BUILD) -ldflags="-s -w -X main.Version=$(GIT_REV)" -o $@ ./$<
+	$(GO_ENV) $(GO_BUILD) -ldflags="-s -w -X main.Revision=$(GIT_REV)" -o $@ ./$<
 
 ## Build all handlers
 handlers: $(TARGETS)
@@ -36,6 +37,11 @@ handlers: $(TARGETS)
 devdeps:
 	GO111MODULE=off go get \
 	github.com/Songmu/make2help/cmd/make2help
+
+## Format files
+fmt:
+	go fmt ./...
+	terraform fmt -recursive
 
 ## Clean up artifacts
 clean:
@@ -48,7 +54,7 @@ clean:
 ## Deploy to AWS via Terraform
 deploy: handlers .envrc
 	cd $(TF_DIR) && \
-	terraform apply
+	terraform apply -var "api_gateway_accounts_already_exists=$(AGA_AE)"
 
 ## Show help
 help:
