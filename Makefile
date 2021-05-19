@@ -2,11 +2,15 @@ GIT_REV := "$(shell git rev-parse --short HEAD )"
 GO := go
 GO_BUILD := $(GO) build
 GO_ENV := CGO_ENABLED=0 GOOS=linux GOARCH=amd64
-
 SUFFIX := .go
 
+TF_DIR := terraform
+
 .DEFAULT_GOAL := help
-.PHONY: all handlers devdeps clean help
+.PHONY: init handlers devdeps clean help deploy
+
+init:
+	cd $(TF_DIR) && tfenv install && terraform init
 
 # Register dependency files to detect changes
 DEPFILES :=
@@ -37,6 +41,14 @@ devdeps:
 clean:
 	$(GO) clean
 	rm -rf $(DIST_DIR)
+
+.envrc:
+	cp .envrc.example .envrc
+
+## Deploy to AWS via Terraform
+deploy: handlers .envrc
+	cd $(TF_DIR) && \
+	terraform apply
 
 ## Show help
 help:

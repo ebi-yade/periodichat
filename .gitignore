@@ -1,2 +1,6 @@
 .idea
 _dist
+.envrc
+.terraform
+*terraform.tfvars*
+*.tfstate*
