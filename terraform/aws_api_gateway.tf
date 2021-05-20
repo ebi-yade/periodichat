@@ -4,7 +4,7 @@ resource "aws_api_gateway_rest_api" "this" {
 
 resource "aws_api_gateway_deployment" "this" {
   rest_api_id       = aws_api_gateway_rest_api.this.id
-  stage_name        = local.pj
+  stage_name        = local.stage_name
   stage_description = "timestamp = ${timestamp()}"
 
   depends_on = [
