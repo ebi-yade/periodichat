@@ -21,7 +21,7 @@ DEPFILES += $(LIBS:%=%/*$(SUFFIX))
 
 LAMBDA_HANDLER_DIR := handler
 LAMBDA_HANDLERS := \
-	register \
+	job \
 	auth
 DEPFILES += $(addprefix $(LAMBDA_HANDLER_DIR)/, $(LAMBDA_HANDLERS:%=%/*$(SUFFIX)))
 
