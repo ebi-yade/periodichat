@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"log"
+	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -15,18 +17,24 @@ func init() {
 	log.Println("build revision: ", Revision)
 }
 
-func handleRequest(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	log.Println("method:", req.HTTPMethod)
-	log.Println("path:", req.Path)
-	log.Println("body:", req.Body)
+var (
+	errInvalidMethod = errors.New("invalid HTTP method")
+)
 
-	log.Println("path params:", req.PathParameters)
-	log.Println("query params:", req.QueryStringParameters)
+func handleRequest(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	if req.HTTPMethod == "GET" {
+		log.Println("query params:", req.QueryStringParameters)
+
+		return events.APIGatewayProxyResponse{
+			Body:       `{"success":true}`,
+			StatusCode: 200,
+		}, nil
+	}
 
 	return events.APIGatewayProxyResponse{
-		Body:       "auth request received!",
-		StatusCode: 200,
-	}, nil
+		Body:       errInvalidMethod.Error(),
+		StatusCode: http.StatusMethodNotAllowed,
+	}, errInvalidMethod
 }
 
 func main() {
