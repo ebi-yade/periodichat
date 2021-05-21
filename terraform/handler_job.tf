@@ -6,6 +6,12 @@ resource "aws_lambda_function" "job" {
   source_code_hash = data.archive_file.job.output_base64sha256
   #timeout = 60
   runtime = "go1.x"
+
+  environment {
+    variables = {
+      TABLE_NAME = aws_dynamodb_table.this.name
+    }
+  }
 }
 
 data "archive_file" "job" {

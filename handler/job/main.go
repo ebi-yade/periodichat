@@ -1,10 +1,17 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+
+	"github.com/ebi-yade/periodichat/zoom"
 )
 
 var (
@@ -15,18 +22,35 @@ func init() {
 	log.Println("build revision: ", Revision)
 }
 
-func handleRequest(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+var (
+	errMalformedRequestBody = errors.New("malformed request body")
+)
+
+func handleRequest(ctx context.Context, req events.APIGatewayProxyRequest) error {
+	this := "handleRequest"
 	log.Println("method:", req.HTTPMethod)
-	log.Println("path:", req.Path)
-	log.Println("body:", req.Body)
+	log.Println("method:", req.Headers)
 
-	log.Println("path params:", req.PathParameters)
-	log.Println("query params:", req.QueryStringParameters)
+	var body zoom.BotNotification
+	if err := json.Unmarshal([]byte(req.Body), &body); err != nil {
+		return fmt.Errorf(`[ERROR] in %s: %w: failed to parse json: %s`, this, errMalformedRequestBody, err.Error())
+	}
+	rawCmd := body.Payload.Cmd
+	commands := strings.Fields(rawCmd)
+	if len(commands) == 0 {
+		return fmt.Errorf(`[ERROR] in %s: %w: command is empty`, this, errMalformedRequestBody)
+	}
 
-	return events.APIGatewayProxyResponse{
-		Body:       "request received!",
-		StatusCode: 200,
-	}, nil
+	switch commands[0] {
+	case "register":
+		if err := register(ctx, rawCmd); err != nil {
+			return fmt.Errorf(`[ERROR] in register: %w`, err)
+		}
+	default:
+		return fmt.Errorf(`[ERROR] in %s: the command "%s" is not defined: %w`, this, commands[0], errMalformedRequestBody)
+	}
+
+	return nil
 }
 
 func main() {
