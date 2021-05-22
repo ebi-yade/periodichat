@@ -46,6 +46,10 @@ func handleRequest(ctx context.Context, req events.APIGatewayProxyRequest) error
 		if err := register(ctx, rawCmd); err != nil {
 			return fmt.Errorf(`[ERROR] in register: %w`, err)
 		}
+	case "cancel":
+		if err := cancel(ctx); err != nil {
+			return fmt.Errorf(`[ERROR] in cancel: %w`, err)
+		}
 	default:
 		return fmt.Errorf(`[ERROR] in %s: the command "%s" is not defined: %w`, this, commands[0], errMalformedRequestBody)
 	}

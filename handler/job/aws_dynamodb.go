@@ -60,3 +60,31 @@ func registerToDynamoDB(ctx context.Context, div int, msg string) error {
 
 	return nil
 }
+
+func getAllFromDynamoDB(ctx context.Context) (*dynamodb.ScanOutput, error) {
+	return dynamodbClient.Scan(ctx, &(dynamodb.ScanInput{
+		TableName: aws.String(tableName),
+	}))
+}
+
+func deleteAllOfDynamoDB(ctx context.Context, items []map[string]types.AttributeValue) error {
+	requests := make([]types.WriteRequest, len(items))
+	for i, item := range items {
+		requests[i] = types.WriteRequest{
+			DeleteRequest: &types.DeleteRequest{
+				Key: map[string]types.AttributeValue{
+					"UUID":    item["UUID"],
+					"Divisor": item["Divisor"],
+				},
+			},
+		}
+	}
+
+	input := &dynamodb.BatchWriteItemInput{
+		RequestItems: map[string][]types.WriteRequest{
+			tableName: requests,
+		},
+	}
+	_, err := dynamodbClient.BatchWriteItem(ctx, input)
+	return err
+}
