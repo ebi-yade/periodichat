@@ -1,3 +1,4 @@
 .idea
 _dist
 .envrc
+secret/secret.json

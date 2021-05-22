@@ -6,6 +6,7 @@ SUFFIX := .go
 
 TF_DIR := terraform
 AGA_AE := true
+SECRET_FILE := secret/secret.json
 
 .DEFAULT_GOAL := help
 .PHONY: init handlers devdeps fmt clean help deploy
@@ -22,7 +23,8 @@ DEPFILES += $(LIBS:%=%/*$(SUFFIX))
 LAMBDA_HANDLER_DIR := handler
 LAMBDA_HANDLERS := \
 	job \
-	auth
+	auth \
+	eventbridge
 DEPFILES += $(addprefix $(LAMBDA_HANDLER_DIR)/, $(LAMBDA_HANDLERS:%=%/*$(SUFFIX)))
 
 DIST_DIR := _dist
@@ -32,7 +34,7 @@ $(DIST_DIR)/%: $(LAMBDA_HANDLER_DIR)/% $(DEPFILES) go.sum
 	$(GO_ENV) $(GO_BUILD) -ldflags="-s -w -X main.Revision=$(GIT_REV)" -o $@ ./$<
 
 ## Build all handlers
-handlers: $(TARGETS)
+handlers: $(TARGETS) $(SECRET_FILE)
 
 ## Install dependencies for development
 devdeps:
@@ -51,6 +53,9 @@ clean:
 
 .envrc:
 	cp .envrc.example .envrc
+
+$(SECRET_FILE):
+	cp secret/secret.example.json $(SECRET_FILE)
 
 ## Deploy to AWS via Terraform
 deploy: handlers .envrc
